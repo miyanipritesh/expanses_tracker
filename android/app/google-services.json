@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "233880016957",
+    "project_id": "money-expance",
+    "storage_bucket": "money-expance.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233880016957:android:2dd79128044ba5d8acf254",
+        "android_client_info": {
+          "package_name": "com.example.money_expance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "233880016957-79nc29t7aonietf9m0q81n271e1g1nsp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.money_expance",
+            "certificate_hash": "73a3413f14a8850a0ecfb5c08d90cbbd98d65a62"
+          }
+        },
+        {
+          "client_id": "233880016957-l8lqj5fkg1eb6q1dvu8camgl30p16s1k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD11lV6ILgecy1yq6TtNRMRGdps3H-y7e0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "233880016957-l8lqj5fkg1eb6q1dvu8camgl30p16s1k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
