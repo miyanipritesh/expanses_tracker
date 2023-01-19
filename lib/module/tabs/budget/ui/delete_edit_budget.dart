@@ -12,11 +12,12 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 class EditDeleteBudgetScreen extends StatefulWidget {
   final Budget? budget;
+  final int? remaining;
+  final double? per;
 
-  const EditDeleteBudgetScreen({
-    Key? key,
-    this.budget,
-  }) : super(key: key);
+  const EditDeleteBudgetScreen(
+      {Key? key, this.remaining, this.budget, this.per})
+      : super(key: key);
 
   @override
   State<EditDeleteBudgetScreen> createState() => _EditDeleteBudgetScreenState();
@@ -75,7 +76,7 @@ class _EditDeleteBudgetScreenState extends State<EditDeleteBudgetScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.of(context).size.height -
                 AppBar().preferredSize.height -
                 30,
@@ -129,9 +130,9 @@ class _EditDeleteBudgetScreenState extends State<EditDeleteBudgetScreen> {
                         fontWeight: FontWeight.w600),
                   ),
                 ),
-                const Text(
-                  '\$0',
-                  style: TextStyle(
+                Text(
+                  '${widget.remaining}',
+                  style: const TextStyle(
                       color: AppColors.black100,
                       fontSize: 64,
                       fontWeight: FontWeight.w600),
@@ -139,48 +140,52 @@ class _EditDeleteBudgetScreenState extends State<EditDeleteBudgetScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: linerPercentage(
-                      percentage: 0.75,
+                      percentage: widget.per!,
                       progressColor: getColor1(widget.budget!.category!)!,
                       backGroundColor: getLiteColor(widget.budget!.category!)!),
                 ),
-                UnconstrainedBox(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 25),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    height: 40,
-                    decoration: BoxDecoration(
-                        color: AppColors.red100,
-                        borderRadius: BorderRadius.circular(24)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Container(
-                          height: 24,
-                          width: 24,
+                int.parse(widget.budget!.budgetInPercentage.toString()) / 100 <=
+                            widget.per!.toDouble() &&
+                        widget.budget?.isAlert == true
+                    ? UnconstrainedBox(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 25),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          height: 40,
                           decoration: BoxDecoration(
-                              color: AppColors.white,
+                              color: AppColors.red100,
                               borderRadius: BorderRadius.circular(24)),
-                          child: const Center(
-                              child: Text(
-                            '!',
-                            style: TextStyle(
-                                color: AppColors.red100, fontSize: 18),
-                          )),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Container(
+                                height: 24,
+                                width: 24,
+                                decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(24)),
+                                child: const Center(
+                                    child: Text(
+                                  '!',
+                                  style: TextStyle(
+                                      color: AppColors.red100, fontSize: 18),
+                                )),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              const Text(
+                                'You’ve exceed the limit',
+                                style: TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        const Text(
-                          'You’ve exceed the limit',
-                          style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                      )
+                    : const SizedBox.shrink(),
                 const Spacer(),
                 button(
                     text: 'Edit',

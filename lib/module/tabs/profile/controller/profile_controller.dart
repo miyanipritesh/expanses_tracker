@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:money_expance/model/profile_model.dart';
@@ -27,6 +28,6 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     userDetails = box.read(KeyConstant.userProfile);
-    print('-------userDetails----->${box.read(KeyConstant.userProfile)}');
+    debugPrint('-------userDetails----->${box.read(KeyConstant.userProfile)}');
   }
 }

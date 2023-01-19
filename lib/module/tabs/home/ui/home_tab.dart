@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:money_expance/model/expanses_model.dart';
+import 'package:money_expance/module/tabs/budget/controller/budget_controller.dart';
 import 'package:money_expance/module/tabs/controller/home_controller.dart';
 import 'package:money_expance/module/tabs/home/controller/expance_controller.dart';
 import 'package:money_expance/module/tabs/home/ui/add_transation.dart';
@@ -20,11 +24,19 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
   TabController? _tabController;
   ExpanceController expanceController = Get.put(ExpanceController());
+  BudgetController budgetController = Get.put(BudgetController());
   HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
+    Timer.periodic(
+      const Duration(seconds: 30),
+      (timer) {
+        expanceController.randomNumber.value = Random().nextInt(200);
+      },
+    );
     _tabController = TabController(length: 4, vsync: this);
+
     super.initState();
   }
 
@@ -40,6 +52,22 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
     expanceController.dataMap.forEach((key, value) {
       color.add(getColor1(key)!);
     });
+
+    Timer(
+      const Duration(seconds: 1),
+      () {
+        expanceController.dataMap = {
+          "Shopping": expanceController.shoppingTotal.value.toDouble(),
+          "Subscription": expanceController.subscriptionTotal.value.toDouble(),
+          "Transportation":
+              expanceController.transportationTotal.value.toDouble(),
+          "Salary": expanceController.salaryTotal.value.toDouble(),
+          "Food": expanceController.foodTotal.value.toDouble(),
+        };
+        expanceController.update();
+      },
+    );
+    budgetController.onInit();
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -83,18 +111,24 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.only(right: 12.0, top: 8, bottom: 8),
             child: Stack(children: [
-              Container(
-                padding:
-                    const EdgeInsets.only(left: 3, right: 3, top: 2, bottom: 2),
-                decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppColors.lite20.withOpacity(0.50),
-                    ),
-                    borderRadius: BorderRadius.circular(12)),
-                child: Image.asset(
-                  AppIcon.notification,
-                  height: 32,
-                  width: 32,
+              GestureDetector(
+                onTap: () {
+                  expanceController.calculate();
+                  // LocalNotification.createNotification();
+                },
+                child: Container(
+                  padding: const EdgeInsets.only(
+                      left: 3, right: 3, top: 2, bottom: 2),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppColors.lite20.withOpacity(0.50),
+                      ),
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Image.asset(
+                    AppIcon.notification,
+                    height: 32,
+                    width: 32,
+                  ),
                 ),
               ),
               Positioned(
@@ -118,31 +152,43 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
           padding: const EdgeInsets.only(left: 16.0, right: 16, top: 10),
           child: Column(
             children: [
-              PieChart(
-                dataMap: expanceController.dataMap,
-                animationDuration: const Duration(milliseconds: 800),
-                chartLegendSpacing: 40,
-                chartRadius: MediaQuery.of(context).size.width / 3,
-                colorList: color,
-                initialAngleInDegree: 0,
-                chartType: ChartType.ring,
-                ringStrokeWidth: 20,
-                legendOptions: const LegendOptions(
-                  showLegendsInRow: true,
-                  legendPosition: LegendPosition.bottom,
-                  showLegends: true,
-                  legendShape: BoxShape.circle,
-                  legendTextStyle: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                chartValuesOptions: const ChartValuesOptions(
-                  showChartValueBackground: true,
-                  showChartValues: true,
-                  showChartValuesInPercentage: true,
-                  showChartValuesOutside: true,
-                  decimalPlaces: 1,
-                ),
+              /*   Obx(() => Text(expanceController
+                  .quote[expanceController.randomNumber.value].quoteText
+                  .toString())),
+              Obx(() => Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                      '-${expanceController.quote[expanceController.randomNumber.value].quoteAuthor}'))),*/
+              GetBuilder(
+                init: ExpanceController(),
+                builder: (controller) {
+                  return PieChart(
+                    dataMap: controller.dataMap,
+                    animationDuration: const Duration(milliseconds: 800),
+                    chartLegendSpacing: 40,
+                    chartRadius: MediaQuery.of(context).size.width / 3,
+                    colorList: color,
+                    initialAngleInDegree: 0,
+                    chartType: ChartType.ring,
+                    ringStrokeWidth: 20,
+                    legendOptions: const LegendOptions(
+                      showLegendsInRow: true,
+                      legendPosition: LegendPosition.bottom,
+                      showLegends: false,
+                      legendShape: BoxShape.circle,
+                      legendTextStyle: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    chartValuesOptions: const ChartValuesOptions(
+                      showChartValueBackground: true,
+                      showChartValues: true,
+                      showChartValuesInPercentage: true,
+                      showChartValuesOutside: true,
+                      decimalPlaces: 1,
+                    ),
+                  );
+                },
               ),
               /* Container(
                 margin: const EdgeInsets.only(bottom: 15),
@@ -220,7 +266,7 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                 ),
               ),*/
               const SizedBox(
-                height: 10,
+                height: 50,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,8 +306,7 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                       itemCount: expanceController.expansesData.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        List<Expanses> q =
-                            expanceController.expansesData.reversed.toList();
+                        List<Expanses> q = expanceController.expansesData;
                         bool isSameDate = true;
                         final DateTime date =
                             DateTime.fromMillisecondsSinceEpoch(q[index].time!);
@@ -273,7 +318,7 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                                   q[index - 1].time!);
                           isSameDate = date.isSameDate(prevDate);
                         }
-                        if (DateTime.now()
+                        /*   if (DateTime.now()
                                 .subtract(const Duration(days: 0))
                                 .isSameDate(DateTime.fromMillisecondsSinceEpoch(
                                     q[index].time!.toInt())) ||
@@ -284,71 +329,72 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                             DateTime.now()
                                 .subtract(const Duration(days: 2))
                                 .isSameDate(DateTime.fromMillisecondsSinceEpoch(
-                                    q[index].time!.toInt()))) {
-                          if (index == 0 || !(isSameDate)) {
-                            return Container(
-                              margin: const EdgeInsets.only(top: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(bottom: 5),
-                                    child: Text(
-                                      DateTime.now().isSameDate(DateTime
-                                              .fromMillisecondsSinceEpoch(
-                                                  q[index].time!.toInt()))
-                                          ? 'Today'
-                                          : DateTime.now()
-                                                  .subtract(
-                                                      const Duration(days: 1))
-                                                  .isSameDate(DateTime
-                                                      .fromMillisecondsSinceEpoch(
-                                                          q[index]
-                                                              .time!
-                                                              .toInt()))
-                                              ? 'Yesterday'
-                                              : date.formatDate(),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.black100,
-                                          fontSize: 18),
-                                    ),
+                                    q[index].time!.toInt()))) {*/
+                        if (index == 0 || !(isSameDate)) {
+                          return Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 5),
+                                  child: Text(
+                                    DateTime.now().isSameDate(
+                                            DateTime.fromMillisecondsSinceEpoch(
+                                                q[index].time!.toInt()))
+                                        ? 'Today'
+                                        : DateTime.now()
+                                                .subtract(
+                                                    const Duration(days: 1))
+                                                .isSameDate(DateTime
+                                                    .fromMillisecondsSinceEpoch(
+                                                        q[index].time!.toInt()))
+                                            ? 'Yesterday'
+                                            : date.formatDate(),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.black100,
+                                        fontSize: 18),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: CardWidget(
-                                      category: q[index].category,
-                                      description: q[index].description,
-                                      price: q[index].price,
-                                      time: DateFormat('hh:mm a').format(
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              q[index].time!.toInt())),
-                                    ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: CardWidget(
+                                    category: q[index].category,
+                                    description: q[index].description,
+                                    price: q[index].price,
+                                    time: DateFormat('hh:mm a').format(
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                            q[index].time!.toInt())),
                                   ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: CardWidget(
-                                category: q[index].category,
-                                description: q[index].description,
-                                price: q[index].price,
-                                time: DateFormat('hh:mm a').format(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                        q[index].time!.toInt())),
-                              ),
-                            );
-                          }
+                                ),
+                              ],
+                            ),
+                          );
                         } else {
-                          return const Center(
-                              child: Text('No recent transaction',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.lite20)));
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: CardWidget(
+                              category: q[index].category,
+                              description: q[index].description,
+                              price: q[index].price,
+                              time: DateFormat('hh:mm a').format(
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                      q[index].time!.toInt())),
+                            ),
+                          );
                         }
+                        /*} else {
+                          return SizedBox()  */ /*Padding(
+                            padding: EdgeInsets.only(top: 10.h),
+                            child: const Center(
+                                child: Text('No recent transaction',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.lite20))),
+                          )*/ /*;
+                        }*/
                       },
                     )),
               )

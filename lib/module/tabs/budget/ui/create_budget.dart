@@ -29,6 +29,7 @@ class _CreateBudgetScreenState extends State<CreateBudgetScreen> {
     'Food',
     'Salary',
     'Transportation',
+    'Other',
   ].obs;
 
   @override
@@ -56,6 +57,10 @@ class _CreateBudgetScreenState extends State<CreateBudgetScreen> {
           child: GestureDetector(
               onTap: () {
                 Get.back();
+                budgetController.spendMoneyController.clear();
+                selectedValue1 == null;
+                budgetController.isReceiveAlert.value = false;
+                budgetController.slider.value = 0.0;
               },
               child: Image.asset(
                 AppIcon.arrowLeft,
@@ -269,13 +274,13 @@ class _CreateBudgetScreenState extends State<CreateBudgetScreen> {
                                 if (widget.budget != null) {
                                   budgetController.updateBudget(
                                       id: widget.budget?.id);
+                                  budgetController.update();
+                                  budgetController.onInit();
                                 } else {
                                   budgetController.addBudget();
                                 }
 
                                 // Get.to(const CreateBudgetScreen());
-
-                                ;
                               },
                               context: context),
                         ),

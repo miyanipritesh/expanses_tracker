@@ -4,23 +4,27 @@ import 'package:get/get.dart';
 import 'package:money_expance/local_database/budget_local_database.dart';
 import 'package:money_expance/model/budget_model.dart';
 import 'package:money_expance/module/tabs/controller/home_controller.dart';
+import 'package:money_expance/module/tabs/home/controller/expance_controller.dart';
 import 'package:money_expance/module/tabs/home/ui/add_transation.dart';
 import 'package:money_expance/module/tabs/home_screen.dart';
 import 'package:money_expance/utilies/constant.dart';
 
 class BudgetController extends GetxController {
   HomeController homeController = Get.find<HomeController>();
+  ExpanceController expanceController = Get.find<ExpanceController>();
+
   final RxList<String> items = [
     'Shopping',
     'Subscription',
     'Food',
     'Salary',
     'Transportation',
+    'Other',
   ].obs;
   RxInt currentMonth = DateTime.now().month.obs;
   RxDouble slider = 0.0.obs;
   RxBool isReceiveAlert = false.obs;
-
+  RxList filterData = [].obs;
   RxList<Budget> budget = <Budget>[].obs;
   TextEditingController spendMoneyController = TextEditingController();
 
@@ -32,7 +36,7 @@ class BudgetController extends GetxController {
         witchMonth: changeMonth(currentMonth.value),
         budgetInPercentage: (slider.value * 100).toString().split('.').first);
 
-    var e = budget.map((element) => element.category == selectedValue1);
+    var e = filterData.map((element) => element.category == selectedValue1);
     if (e.contains(true)) {
       Fluttertoast.showToast(
           msg: 'You have already create budget',
@@ -166,10 +170,52 @@ class BudgetController extends GetxController {
     return null;
   }
 
+  getFilterData({required String value}) {
+    switch (value) {
+      case 'Jan':
+        return filterBudget(value: value);
+      case 'Feb':
+        return filterBudget(value: value);
+      case 'Mar':
+        return filterBudget(value: value);
+      case 'Apr':
+        return filterBudget(value: value);
+      case 'May':
+        return filterBudget(value: value);
+      case 'Jun':
+        return filterBudget(value: value);
+      case 'Jul':
+        return filterBudget(value: value);
+      case 'Aug':
+        return filterBudget(value: value);
+      case 'Sep':
+        return filterBudget(value: value);
+      case 'Oct':
+        return filterBudget(value: value);
+      case 'Nov':
+        return filterBudget(value: value);
+      case 'Dec':
+        return filterBudget(value: value);
+    }
+  }
+
+  filterBudget({required String value}) {
+    filterData.clear();
+    for (var element in budget) {
+      if (element.witchMonth == value) {
+        filterData.add(element);
+      }
+    }
+    update();
+  }
+
   @override
   void onInit() {
-    // BudgetLocalDatabase.deleteDatabase();
+    getFilterData(value: changeMonth(currentMonth.value).toString());
+    update();
+    expanceController.calculate();
     getAllBudget();
+
     super.onInit();
   }
 

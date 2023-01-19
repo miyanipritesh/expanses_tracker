@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:money_expance/model/budget_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -52,7 +53,7 @@ class BudgetLocalDatabase {
     if (maps.isEmpty) {
       return null;
     }
-    print('------budget--->$maps');
+    debugPrint('------budget--->$maps');
     return List.generate(maps.length, (index) => Budget.fromJson(maps[index]))
         .reversed
         .toList();

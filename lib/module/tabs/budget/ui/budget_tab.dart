@@ -17,8 +17,13 @@ class BudgetScreen extends StatefulWidget {
 }
 
 class _BudgetScreenState extends State<BudgetScreen> {
-  BudgetController budgetController = Get.put(BudgetController());
   ExpanceController expanceController = Get.find<ExpanceController>();
+  BudgetController budgetController = Get.find<BudgetController>();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +41,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     onTap: () {
                       if (budgetController.currentMonth.value > 1) {
                         budgetController.backCurrentMonth();
+                        budgetController.getFilterData(
+                            value: budgetController
+                                .changeMonth(
+                                    budgetController.currentMonth.value)
+                                .toString());
                       }
                     },
                     child: SizedBox(
@@ -52,11 +62,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     ),
                   ),
                   SizedBox(
-                    width: 50,
                     child: Obx(() => Text(
-                          budgetController
-                              .changeMonth(budgetController.currentMonth.value)
-                              .toString(),
+                          '${budgetController.changeMonth(budgetController.currentMonth.value)}  2023',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                               fontWeight: FontWeight.w500,
@@ -69,6 +76,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       if (budgetController.currentMonth.value >= 12) {
                       } else {
                         budgetController.changeCurrentMonth();
+                        budgetController.getFilterData(
+                            value: budgetController
+                                .changeMonth(
+                                    budgetController.currentMonth.value)
+                                .toString());
                       }
                     },
                     child: SizedBox(
@@ -92,17 +104,35 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30))),
-                  child: ListView(
-                    children: [
-                      Obx(() => ListView.builder(
+                  child: GetBuilder(
+                    init: BudgetController(),
+                    builder: (controller) {
+                      return ListView(
+                        children: [
+                          ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: budgetController.budget.length,
+                            itemCount: controller.filterData.length,
                             itemBuilder: (context, index) {
                               return GestureDetector(
                                 onTap: () {
                                   Get.to(EditDeleteBudgetScreen(
-                                    budget: budgetController.budget[index],
+                                    budget: controller.filterData[index],
+                                    remaining: int.parse(controller
+                                            .filterData[index].budget
+                                            .toString()) -
+                                        expanceController.foodTotal.value,
+                                    per: (int.parse(controller
+                                                    .filterData[index].budget
+                                                    .toString()) -
+                                                expanceController
+                                                    .foodTotal.value)
+                                            .isNegative
+                                        ? 1
+                                        : expanceController.foodTotal.value /
+                                            int.parse(budgetController
+                                                .filterData[index].budget
+                                                .toString()),
                                   ));
                                 },
                                 child: Card(
@@ -150,8 +180,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                     width: 14,
                                                     decoration: BoxDecoration(
                                                         color: getColor1(
-                                                            budgetController
-                                                                .budget[index]
+                                                            controller
+                                                                .filterData[
+                                                                    index]
                                                                 .category
                                                                 .toString()),
                                                         borderRadius:
@@ -159,8 +190,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                                 .circular(14)),
                                                   ),
                                                   Text(
-                                                    budgetController
-                                                        .budget[index].category
+                                                    controller.filterData[index]
+                                                        .category
                                                         .toString(),
                                                     style: const TextStyle(
                                                         color:
@@ -172,38 +203,57 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                                 ],
                                               ),
                                             ),
-                                            Image.asset(
-                                              AppImage.error,
-                                              height: 24,
-                                              width: 24,
-                                            )
+                                            int.parse(controller
+                                                            .filterData[index]
+                                                            .budgetInPercentage
+                                                            .toString()) /
+                                                        100 <=
+                                                    expanceController
+                                                            .foodTotal.value /
+                                                        int.parse(controller
+                                                            .filterData[index]
+                                                            .budget
+                                                            .toString())
+                                                ? Image.asset(
+                                                    AppImage.error,
+                                                    height: 24,
+                                                    width: 24,
+                                                  )
+                                                : const SizedBox.shrink()
                                           ],
                                         ),
                                         Container(
                                           margin: const EdgeInsets.only(
                                               bottom: 5, top: 5),
-                                          child: const Text(
-                                            'Remaining \$0',
-                                            style: TextStyle(
+                                          child: Text(
+                                            'Remaining ${int.parse(controller.filterData[index].budget.toString()) - expanceController.foodTotal.value}',
+                                            style: const TextStyle(
                                                 color: AppColors.black100,
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w600),
                                           ),
                                         ),
                                         linerPercentage(
-                                            percentage: 0.75,
-                                            progressColor: getColor1(
-                                                budgetController
-                                                    .budget[index].category
-                                                    .toString())!,
+                                            percentage: (int.parse(controller.filterData[index].budget.toString()) -
+                                                        expanceController
+                                                            .foodTotal.value)
+                                                    .isNegative
+                                                ? 1
+                                                : expanceController
+                                                        .foodTotal.value /
+                                                    int.parse(controller
+                                                        .filterData[index]
+                                                        .budget
+                                                        .toString()),
+                                            progressColor: getColor1(controller
+                                                .filterData[index].category
+                                                .toString())!,
                                             backGroundColor: getLiteColor(
-                                                budgetController
-                                                    .budget[index].category
-                                                    .toString())!),
+                                                budgetController.filterData[index].category.toString())!),
                                         Container(
                                           margin: const EdgeInsets.only(top: 5),
                                           child: Text(
-                                            '${budgetController.budget[index].budget.toString()}',
+                                            '${expanceController.foodTotal.value} of ${controller.filterData[index].budget.toString()}',
                                             style: const TextStyle(
                                                 color: AppColors.lite20,
                                                 fontSize: 16,
@@ -216,26 +266,19 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 ),
                               );
                             },
-                          )),
-                      // const Text(
-                      //   "You don’t have a budget.\nLet’s make one so you in control.",
-                      //   textAlign: TextAlign.center,
-                      //   style: TextStyle(
-                      //       fontWeight: FontWeight.w500,
-                      //       fontSize: 16,
-                      //       color: AppColors.lite20),
-                      // ),
-                      // const Spacer(),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: button(
-                            text: 'Create a budget',
-                            onTap: () {
-                              Get.to(CreateBudgetScreen());
-                            },
-                            context: context),
-                      ),
-                    ],
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: button(
+                                text: 'Create a budget',
+                                onTap: () {
+                                  Get.to(CreateBudgetScreen());
+                                },
+                                context: context),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ))
           ],

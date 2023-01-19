@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -16,6 +17,12 @@ class TransationScreen extends StatefulWidget {
 
 class _TransationScreenState extends State<TransationScreen> {
   ExpanceController expanceController = Get.put(ExpanceController());
+  String selectedValue2 = 'Day';
+  final RxList<String> items = [
+    'Month',
+    'Year',
+    'Day',
+  ].obs;
 
   @override
   Widget build(BuildContext context) {
@@ -28,31 +35,78 @@ class _TransationScreenState extends State<TransationScreen> {
               child: Container(
                 margin: const EdgeInsets.only(left: 16, top: 12),
                 padding:
-                    const EdgeInsets.only(right: 8, top: 4, bottom: 4, left: 4),
+                    const EdgeInsets.only(right: 8, top: 0, bottom: 0, left: 0),
+                width: 120,
                 decoration: BoxDecoration(
+                  color: Colors.transparent,
                   border: Border.all(
                     color: AppColors.lite20.withOpacity(0.50),
                   ),
                   borderRadius: BorderRadius.circular(40),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      AppIcon.arrowDown,
-                      color: AppColors.violet100,
-                      height: 32,
-                      width: 32,
-                    ),
-                    const Text(
-                      'Month',
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2(
+                    isExpanded: true,
+                    hint: const Text(
+                      'Select Item',
                       style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.black50),
-                    )
-                  ],
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.lite20,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    items: items
+                        .map((item) => DropdownMenuItem<String>(
+                              value: item,
+                              child: Text(
+                                item,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.black100,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ))
+                        .toList(),
+                    value: selectedValue2,
+                    onChanged: (value) {
+                      if (mounted) {
+                        setState(() {
+                          selectedValue2 = value!;
+                        });
+                      }
+                    },
+                    icon: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 20.0, top: 10, bottom: 10),
+                      child: Image.asset(
+                        AppIcon.arrowDown,
+                        color: AppColors.violet100,
+                      ),
+                    ),
+                    iconSize: 10,
+                    iconEnabledColor: AppColors.black50,
+                    iconDisabledColor: Colors.grey,
+                    buttonHeight: 50,
+                    buttonWidth: 160,
+                    buttonPadding: const EdgeInsets.only(left: 14, right: 0),
+                    buttonElevation: 0,
+                    itemHeight: 40,
+                    itemPadding: const EdgeInsets.only(left: 14),
+                    dropdownMaxHeight: 200,
+                    dropdownPadding: null,
+                    dropdownDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: AppColors.white,
+                    ),
+                    dropdownElevation: 8,
+                    scrollbarRadius: const Radius.circular(40),
+                    scrollbarThickness: 6,
+                    scrollbarAlwaysShow: true,
+                    offset: const Offset(5, 0),
+                  ),
                 ),
               ),
             ),
@@ -62,8 +116,7 @@ class _TransationScreenState extends State<TransationScreen> {
                     itemCount: expanceController.expansesData.length,
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      List<Expanses> q =
-                          expanceController.expansesData.reversed.toList();
+                      List<Expanses> q = expanceController.expansesData;
                       bool isSameDate = true;
                       final DateTime date =
                           DateTime.fromMillisecondsSinceEpoch(q[index].time!);

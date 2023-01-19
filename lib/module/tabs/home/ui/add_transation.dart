@@ -27,6 +27,7 @@ class _AddTransationScreenState extends State<AddTransationScreen> {
     'Food',
     'Salary',
     'Transportation',
+    'Other',
   ].obs;
 
   @override
@@ -108,7 +109,7 @@ class _AddTransationScreenState extends State<AddTransationScreen> {
                         topLeft: Radius.circular(30),
                         topRight: Radius.circular(30))),
                 child: SingleChildScrollView(
-                  child: Container(
+                  child: SizedBox(
                     height: MediaQuery.of(context).size.height * 0.60,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -406,7 +407,7 @@ class _AddTransationScreenState extends State<AddTransationScreen> {
                               expanceController.onInit();
                             },
                             context: context),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         )
                       ],

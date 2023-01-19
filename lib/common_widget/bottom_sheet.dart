@@ -10,14 +10,12 @@ showBottomSheet1(
     required Function() onYes}) {
   showModalBottomSheet(
     context: context,
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(25), topRight: Radius.circular(25))),
     builder: (context) {
       return Container(
         padding: const EdgeInsets.only(top: 5, bottom: 15),
-        clipBehavior: Clip.hardEdge,
-        decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(100), topRight: Radius.circular(100))),
-        // height: 150,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
